@@ -1,0 +1,41 @@
+name: Media Service CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Build the application
+      - name: Build the application
+        run: npm run build
+
+      #   Step 5: Build Docker image
+      - name: Build Docker Image
+        run: docker build -t imohit1o1/media-upload-microservice:0.0.1-RELEASE .
+
+      #   Step 6: Log in to Docker Hub
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+      # Step 6: Push the docker image to the registry
+      - name: Push Docker Image
+        run: docker push imohit1o1/media-upload-microservice:0.0.1-RELEASE
